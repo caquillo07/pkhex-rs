@@ -1,0 +1,12 @@
+{
+  "name": "pkhex-rs",
+  "version": "0.1.0",
+  "description": "pkhexcore-rs UI",
+  "main": "index.js",
+  "author": "Hector Mejia & Devin",
+  "license": "MIT",
+  "private": true,
+  "dependencies": {
+    "tauri": "^0.14.1"
+  }
+}
