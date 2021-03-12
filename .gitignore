@@ -2,4 +2,5 @@
 /target/
 src-tauri/target
 /Cargo.lock
+.idea
 node_modules

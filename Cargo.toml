@@ -14,3 +14,6 @@ categories = ["gui", "wasm", "web-programming"]
 [dependencies]
 yew = "0.17.4"
 pkhexcore = { git = "https://github.com/inspier/pkhexcore-rs" }
+log = "0.4.6"
+wasm-logger = "0.2.0"
+
