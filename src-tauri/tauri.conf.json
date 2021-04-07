@@ -3,7 +3,8 @@
     "distDir": "../dist",
     "devPath": "http://localhost:8080",
     "beforeDevCommand": "",
-    "beforeBuildCommand": "trunk build"
+    "beforeBuildCommand": "trunk build",
+    "withGlobalTauri": true
   },
   "ctx": {},
   "tauri": {
