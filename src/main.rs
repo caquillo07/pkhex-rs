@@ -7,8 +7,8 @@ use std::convert::TryFrom;
 use pkhexcore::*;
 use pkm::pk8;
 use wasm_bindgen::prelude::*;
-use yew::{events::ChangeData, services::ReaderService};
-use yew::{prelude::*, services::reader::FileData};
+use yew::prelude::*;
+use yew::services::ReaderService;
 use yew::{services::reader::ReaderTask, web_sys::File};
 
 #[derive(Debug)]
@@ -20,7 +20,7 @@ pub struct Model {
 }
 
 pub enum Msg {
-    FileLoaded(FileData),
+    FileLoaded(Vec<u8>),
     SelectFile(Option<File>),
     ClearFile,
     Payload(String),
@@ -44,15 +44,15 @@ impl Component for Model {
         match msg {
             Msg::SelectFile(file) => {
                 log::info!("file: {:?}", file);
-                if let Some(f) = file {
-                    log::info!("file: {:?}", f.size());
-                    let mut reader = ReaderService::new();
-                    let callback = self.link.callback(Msg::FileLoaded);
-                    //     todo(hector) - Handle this more gracefully, do not
-                    //     ignore the error
-                    let task = reader.read_file(f, callback).unwrap();
-                    self.tasks.push(task);
-                }
+                // if let Some(f) = file {
+                //     log::info!("file: {:?}", f.size());
+                //     let mut reader = ReaderService::new();
+                //     let callback = self.link.callback(Msg::FileLoaded);
+                //     //     todo(hector) - Handle this more gracefully, do not
+                //     //     ignore the error
+                //     let task = reader.read_file(f, callback).unwrap();
+                //     self.tasks.push(task);
+                // }
             }
             Msg::ClearFile => {
                 log::info!("hello!!");
@@ -62,15 +62,15 @@ impl Component for Model {
                 // todo(hector) - handle errors
                 // let c: [u8; 344] = <[u8; 344]>::try_from(file_data.content).unwrap();
                 self.pokemon = Some(pk8::PK8::from(
-                    &<[u8; 344]>::try_from(file_data.content.clone()).unwrap(),
+                    &<[u8; 344]>::try_from(file_data.clone()).unwrap(),
                 ));
             }
             Msg::Payload(msg) => {
                 log::info!("From JS: {:?}", msg);
             }
             Msg::AsyncPayload => {
-                let callback = self.link.callback(Msg::Payload);
-                bindings::get_payload_later(Closure::once_into_js(move |payload: String| {
+                let callback = self.link.callback(Msg::FileLoaded);
+                bindings::get_payload_later(Closure::once_into_js(move |payload: Vec<u8>| {
                     callback.emit(payload)
                 }));
             }
@@ -85,45 +85,31 @@ impl Component for Model {
 
     fn view(&self) -> Html {
         html! {
-                    <main>
-                        <img class="logo" src="http://static.yew.rs/logo.svg" alt="Yew logo" />
-                        {
-                            if let Some(pokemon) = &self.pokemon {
-                                html! {
-                                    <>
-                                        <h1>{ pokemon.nickname.as_str() }</h1>
-                                        <span class="subtitle">{ format!("Level: {}", pokemon.stat_level) }</span>
-                                        <span class="subtitle">{ format!("OT: {}", pokemon.ot_name) }</span>
-                                    </>
-                                }
-                            } else {
-                                html! {<></>}
-                            }
+            <main>
+                {
+                    if let Some(pokemon) = &self.pokemon {
+                        html! {
+                            <>
+                                <h1>{ pokemon.nickname.as_str() }</h1>
+                                <span class="subtitle">{ format!("Level: {}", pokemon.stat_level) }</span>
+                                <span class="subtitle">{ format!("OT: {}", pokemon.ot_name) }</span>
+                            </>
                         }
-                       // <input class="new-todo"
-                       //     placeholder="What needs to be done?"
-                       //     onkeypress=self.link.callback(|e: KeyPressEvent| {
-                       //         log::info!("Hello there");
-                       //     }) />
-                        <br/>
-        <button onclick=self.link.callback(|_| Msg::Payload(bindings::get_payload()))>
-                            { "Get the payload!" }
-                        </button>
-                        <button onclick=self.link.callback(|_| Msg::AsyncPayload) >
-                            { "Get the payload later!" }
-                        </button>
-                        // <input type="file" id="file-input" accept=".pk8" onchange=self.link.callback(|cd: ChangeData| {
-                        //     match cd {
-                        //         ChangeData::Files(file_list) => {
-                        //             log::info!("File list: {:?}", file_list.get(0));
-                        //             let file = file_list.get(0);
-                        //             Msg::SelectFile(file_list.get(0))
-                        //         },
-                        //         default => Msg::ClearFile
-                        //     }
-                        // })/>
-                    </main>
+                    } else {
+                        html! {<></>}
+                    }
                 }
+
+
+                <br/>
+                <button onclick=self.link.callback(|_| Msg::Payload(bindings::get_payload()))>
+                    { "Get the payload!" }
+                </button>
+                <button onclick=self.link.callback(|_| Msg::AsyncPayload) >
+                    { "Get the payload later!" }
+                </button>
+            </main>
+        }
     }
 }
 
