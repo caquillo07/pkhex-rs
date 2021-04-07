@@ -21,10 +21,8 @@ pub struct Model {
 
 pub enum Msg {
     FileLoaded(Vec<u8>),
-    SelectFile(Option<File>),
     ClearFile,
-    Payload(String),
-    AsyncPayload,
+    OpenPK8File,
 }
 
 impl Component for Model {
@@ -42,35 +40,19 @@ impl Component for Model {
 
     fn update(&mut self, msg: Self::Message) -> ShouldRender {
         match msg {
-            Msg::SelectFile(file) => {
-                log::info!("file: {:?}", file);
-                // if let Some(f) = file {
-                //     log::info!("file: {:?}", f.size());
-                //     let mut reader = ReaderService::new();
-                //     let callback = self.link.callback(Msg::FileLoaded);
-                //     //     todo(hector) - Handle this more gracefully, do not
-                //     //     ignore the error
-                //     let task = reader.read_file(f, callback).unwrap();
-                //     self.tasks.push(task);
-                // }
-            }
             Msg::ClearFile => {
                 log::info!("hello!!");
             }
             Msg::FileLoaded(file_data) => {
-                log::info!("fileData: {:?}", file_data);
                 // todo(hector) - handle errors
                 // let c: [u8; 344] = <[u8; 344]>::try_from(file_data.content).unwrap();
                 self.pokemon = Some(pk8::PK8::from(
                     &<[u8; 344]>::try_from(file_data.clone()).unwrap(),
                 ));
             }
-            Msg::Payload(msg) => {
-                log::info!("From JS: {:?}", msg);
-            }
-            Msg::AsyncPayload => {
+            Msg::OpenPK8File => {
                 let callback = self.link.callback(Msg::FileLoaded);
-                bindings::get_payload_later(Closure::once_into_js(move |payload: Vec<u8>| {
+                bindings::open_pk8_file(Closure::once_into_js(move |payload: Vec<u8>| {
                     callback.emit(payload)
                 }));
             }
@@ -102,11 +84,8 @@ impl Component for Model {
 
 
                 <br/>
-                <button onclick=self.link.callback(|_| Msg::Payload(bindings::get_payload()))>
-                    { "Get the payload!" }
-                </button>
-                <button onclick=self.link.callback(|_| Msg::AsyncPayload) >
-                    { "Get the payload later!" }
+                <button onclick=self.link.callback(|_| Msg::OpenPK8File) >
+                    { "Open File" }
                 </button>
             </main>
         }
