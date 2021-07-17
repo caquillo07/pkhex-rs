@@ -8,11 +8,11 @@ use pkhexcore::*;
 use pkm::pk8;
 use wasm_bindgen::prelude::*;
 use yew::prelude::*;
+use yew::services::reader::ReaderTask;
 use yew::services::ReaderService;
-use yew::{services::reader::ReaderTask, web_sys::File};
 
 #[derive(Debug)]
-pub struct Model {
+pub struct LayoutComponent {
     pokemon: Option<pk8::PK8>,
     link: ComponentLink<Self>,
     reader: ReaderService,
@@ -25,15 +25,15 @@ pub enum Msg {
     OpenPK8File,
 }
 
-impl Component for Model {
+impl Component for LayoutComponent {
     type Message = Msg;
     type Properties = ();
 
     fn create(_props: Self::Properties, link: ComponentLink<Self>) -> Self {
-        Self {
+        LayoutComponent {
             pokemon: None,
             link,
-            reader: ReaderService::new(),
+            reader: ReaderService {},
             tasks: vec![],
         }
     }
@@ -94,5 +94,5 @@ impl Component for Model {
 
 fn main() {
     wasm_logger::init(wasm_logger::Config::default());
-    yew::start_app::<Model>();
+    yew::start_app::<LayoutComponent>();
 }
